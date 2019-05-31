@@ -1,7 +1,7 @@
 # Flower_app
 ## User
 | URL                       | 用途          | 接收参数                                                                | 返回参数(成功)                                                                                                         | 返回参数(失败) |
-| ------------------------- | ------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------- |
+| --------------------- | ---------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------- |
 | **/auth/register**        | 注册          | phone_number, password                                                  | msg                                                                                                                    | msg, error     |
 | **/auth/login**           | 登陆          | phone_number, password                                                  | msg, error, id, phone_number, password, nickname, level, EXPoint, friend, personal_description, sex, age, region, head | msg, error     |
 | **/auth/personal_info**   | 修改个人信息  | id, phone_number, nickname, img, personal_description, sex, age, region | msg, id, phone_number, nickname, img, personal_description, sex, age, region                                           | msg, error     |
