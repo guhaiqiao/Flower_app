@@ -27,9 +27,9 @@ def index():
         ]
         for info in infos:
             blog[info] = post[info]
+        blog['image'] = ''
         if post['image']:
             blog['image'] = imageToStr(os.getcwd() + post['image'])
-        blog['image'] = ''
         blogs[i] = blog
     return jsonify(blogs=blogs, msg=msg)
 
@@ -54,8 +54,8 @@ def create():
         create_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         image = ''
         if img:
-            image = strToImage(os.getcwd() + BLOG_IMAGE + str(id) + '_' +
-                               create_time)
+            image = BLOG_IMAGE + str(id) + '_' + create_time + '.jpg'
+            strToImage(img, os.getcwd() + image)
         db = get_db()
         db.execute(
             'INSERT INTO post (title, body, author_id, good, gooder'
