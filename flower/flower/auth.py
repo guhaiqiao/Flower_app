@@ -1,7 +1,7 @@
 from flask import (Blueprint, request, jsonify)
 from werkzeug.security import check_password_hash, generate_password_hash
-from flower.flower.db import get_db
-from flower.flower.exdata import imageToStr, strToImage
+from flower.db import get_db
+from flower.exdata import imageToStr, strToImage
 import os
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')

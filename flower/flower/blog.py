@@ -1,8 +1,8 @@
 from flask import (Blueprint, request, jsonify)
-from flower.flower.db import get_db
+from flower.db import get_db
 import datetime
 import os
-from flower.flower.exdata import strToImage, imageToStr
+from flower.exdata import strToImage, imageToStr
 
 BLOG_IMAGE = '\\image\\blog_image\\'
 

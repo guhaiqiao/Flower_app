@@ -1,5 +1,6 @@
 from flask import Flask
 import os
+import socket
 
 
 def create_app(test_config=None):
@@ -12,6 +13,7 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
+    print('当前ip：', socket.gethostbyname(socket.gethostname()))
     try:
         os.makedirs(app.instance_path)
     except OSError:

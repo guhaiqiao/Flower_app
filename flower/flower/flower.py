@@ -1,6 +1,6 @@
 from flask import (Blueprint, request, jsonify)
-from flower.flower.db import get_db
-from flower.flower.exdata import imageToStr
+from flower.db import get_db
+from flower.exdata import imageToStr
 # import flower.auto_match
 import os
 
