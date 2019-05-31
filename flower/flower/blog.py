@@ -1,8 +1,9 @@
 from flask import (Blueprint, request, jsonify)
 from flower.db import get_db
-import datetime
-import os
 from flower.exdata import strToImage, imageToStr
+import datetime
+import json
+import os
 
 BLOG_IMAGE = '\\image\\blog_image\\'
 
@@ -15,15 +16,15 @@ def index():
     db = get_db()
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, nickname,'
-        ' good, gooder, image, comment'
+        ' like, liker, image, comment'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' ORDER BY created DESC').fetchall()
     blogs = {}
     for i, post in enumerate(posts):
         blog = {}
         infos = [
-            'id', 'title', 'body', 'created', 'author_id', 'nickname', 'good',
-            'gooder', 'comment'
+            'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
+            'liker', 'comment'
         ]
         for info in infos:
             blog[info] = post[info]
@@ -39,10 +40,11 @@ ALLOWED_EXTENTIONS = ["jpg", "png", "JPG", "PNG", "GIF", "gif"]
 
 @bp.route('/create', methods=['POST'])
 def create():
-    id = request.form['id']  # 用户id
-    title = request.form['title']
-    body = request.form['body']
-    img = request.form['image']
+    form = json.loads(request.data)
+    id = form['id']  # 用户id
+    title = form['title']
+    body = form['body']
+    img = form['image']
     error = None
     msg = '发表失败'
 
@@ -58,7 +60,7 @@ def create():
             strToImage(img, os.getcwd() + image)
         db = get_db()
         db.execute(
-            'INSERT INTO post (title, body, author_id, good, gooder'
+            'INSERT INTO post (title, body, author_id, like, liker'
             ', image, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (title, body, id, 0, '', image, ''))
         db.commit()
@@ -71,8 +73,8 @@ def create():
 #             nickname=nickname,
 #             title=title,
 #             body=body,
-#             good=0,
-#             gooder='',
+#             like=0,
+#             liker='',
 #             image=image,
 #             comment='',
 #             create_time=create_time
@@ -83,7 +85,7 @@ def create():
 # def comment(id):
 #     db = get_db()
 #     post = db.execute(
-#         'SELECT p.id, title, body, username, created, gooder, good, comment'
+#         'SELECT p.id, title, body, username, created, liker, like, comment'
 #         ' FROM post p JOIN user u ON p.author_id = u.id'
 #         ' WHERE p.id = ?', (id, )).fetchone()
 
@@ -100,26 +102,27 @@ def create():
 #     return render_template('blog/comment.html', post=post)
 
 
-@bp.route('/good', methods=['POST'])
-def good():
+@bp.route('/like', methods=['POST'])
+def like():
+    form = json.loads(request.data)
     msg = '点赞成功'
-    u_id = request.form['u_id']
-    p_id = request.form['p_id']
+    u_id = form['u_id']
+    p_id = form['p_id']
     db = get_db()
     post = db.execute(
-        'SELECT p.id, nickname, gooder, good'
+        'SELECT p.id, nickname, liker, like'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?', (p_id, )).fetchone()
-    if str(u_id) not in post['gooder'].split(','):
-        gooder = post['gooder'] + ',' + str(u_id)
+    if str(u_id) not in post['liker'].split(','):
+        liker = post['liker'] + ',' + str(u_id)
     else:
         msg = '取消赞成功'
-        gooder = post['gooder'].split(',')
-        gooder.remove(str(u_id))
-        gooder = ','.join(gooder)
-    good = len(gooder.split(','))
-    db.execute('UPDATE post SET gooder = ?, good = ?'
-               ' WHERE id = ?', (gooder, good, p_id))
+        liker = post['liker'].split(',')
+        liker.remove(str(u_id))
+        liker = ','.join(liker)
+    like = len(liker.split(','))
+    db.execute('UPDATE post SET liker = ?, like = ?'
+               ' WHERE id = ?', (liker, like, p_id))
     db.commit()
     return jsonify(id=p_id, msg=msg)
 

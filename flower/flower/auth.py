@@ -33,14 +33,14 @@ def register():
     msg = 'Failed register.'
 
     if not phone_number:
-        error = 'Phone number is required.'
+        error = '请输入手机号.'
     elif not check_phone(phone_number):
-        error = 'Incorrect phone number.'
+        error = '手机号有误.'
     elif not password:
-        error = 'Password is required'
+        error = '请输入密码'
     elif db.execute('SELECT id FROM user WHERE phone_number = ?',
                     (phone_number, )).fetchone() is not None:
-        error = 'This phone number {} is already registered'.format(
+        error = '手机号 {} 已被注册'.format(
             phone_number)
 
     if error is None:
@@ -53,12 +53,10 @@ def register():
              USER_IMAGE + 'default.jpg', 1, 0, '', '这个人很懒，什么也没有留下', '未知', '0',
              '未知'))
         db.commit()
-        msg = 'Successfully registered.'
+        msg = '注册成功'
 
     return jsonify({
         'msg': msg,
-        # 'id': id,
-        # 'phone_number': phone_number,
         'error': error
     })
 
@@ -75,13 +73,13 @@ def login():
                       (phone_number, )).fetchone()
 
     if user is None:
-        error = 'This user doesn\'t exist.'
+        error = '该用户不存在'
     elif not check_password_hash(user['password'], password):
-        error = 'Incorrect password.'
+        error = '密码错误'
 
     if error is None:
         if user['ip'] != '':
-            error = 'But this user is already online at another ip {}.'.format(
+            msg += '用户在另一ip已登录 {}'.format(
                 user['ip'])
         db.execute('UPDATE user SET ip = ?'
                    ' WHERE id = ?', (request.remote_addr, user['id']))
@@ -172,8 +170,6 @@ def update_personal_info():
 
         return jsonify({
             'msg': msg,
-            # 'error': error,
-            'id': id,
             'head': img,
             'phone_number': phone_number,
             'nickname': nickname,
@@ -183,7 +179,7 @@ def update_personal_info():
             'region': region
         })
 
-    return jsonify({'msg': msg, 'id': id, 'error': error})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/password_update', methods=['POST'])
@@ -207,12 +203,10 @@ def update_password():
         msg = '修改成功'
         return jsonify({
             'msg': msg,
-            'id': id,
             'password': new_password,
-            # 'error': error
         })
 
-    return jsonify({'msg': msg, 'id': id, 'error': error})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/query', methods=['POST'])
@@ -241,8 +235,6 @@ def query_user():
         head = imageToStr(os.getcwd() + User['head'])
         return jsonify({
             'msg': msg,
-            # 'error': error,
-            # 'id': id,
             'phone_number': User['phone_number'],
             'nickname': User['nickname'],
             'level': User['level'],
@@ -254,7 +246,7 @@ def query_user():
             'head': head
         })
 
-    return jsonify({'msg': msg, 'id': id, 'error': error})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/friend', methods=['POST'])
@@ -303,12 +295,10 @@ def update_friends():
                 msg = '删除成功'
         return jsonify({
             'msg': msg,
-            # 'id': id,
             'friend': friends,
-            # 'error': error
         })
 
-    return jsonify({'msg': msg, 'id': id, 'error': error})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/logout', methods=['POST'])
@@ -324,4 +314,4 @@ def logout():
         db.execute('UPDATE user SET ip = ? WHERE id = ?', ('', id))
         db.commit()
         msg = '下线成功'
-    return jsonify({'msg': msg, 'id': id, 'error': error})
+    return jsonify({'msg': msg, 'error': error})

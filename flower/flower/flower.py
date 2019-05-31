@@ -3,6 +3,7 @@ from flower.db import get_db
 from flower.exdata import imageToStr
 # import flower.auto_match
 import os
+import json
 
 FLOWER_IMAGE = '\\image\\flower_image\\'
 bp = Blueprint('flower', __name__, url_prefix='/flower')
@@ -25,9 +26,10 @@ bp = Blueprint('flower', __name__, url_prefix='/flower')
 def query_flower():
     import_flower('玫瑰花', 'rose', '主花', '爱情', '1.jpg', '暂无描述', '康乃馨', '满天星, 百合',
                   10)
+    form = json.loads(request.data)
     msg = '查询失败'
     error = None
-    flower_name = request.form['flower_name']
+    flower_name = form['flower_name']
     db = get_db()
     Flower = db.execute('SELECT * FROM flower WHERE cn_name = ?',
                         (flower_name, )).fetchone()
@@ -50,7 +52,6 @@ def query_flower():
             'description': Flower['description'],
             'price': Flower['price']
         })
-        # return jsonify(msg=msg, error=error)
 
     return jsonify({'msg': msg, 'flower_name': flower_name, 'error': error})
 
@@ -70,13 +71,14 @@ def auto_match():
     #     return jsonify(matchs=matchs)
     if '1' in like:
         if '2' in like:
-            img = imageToStr(os.getcwd() + '\\flower_image\\' + '1_2.jpg')
+            pic = '1_2.jpg'
         elif '12' in like:
-            img = imageToStr(os.getcwd() + '\\flower_image\\' + '1_12.jpg')
+            pic = '1_12.jpg'
         elif '15' in like:
-            img = imageToStr(os.getcwd() + '\\flower_image\\' + '1_15.jpg')
+            pic = '1_15.jpg'
     if '5' in like:
-        img = imageToStr(os.getcwd() + '\\flower_image\\' + '5_15.jpg')
+        pic = '5_15.jpg'
+    img = imageToStr(os.getcwd() + '\\flower_image\\' + pic)
 
     return jsonify(img=img, msg=msg)
 
