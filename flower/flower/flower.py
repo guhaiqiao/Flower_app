@@ -46,14 +46,14 @@ def query_flower():
             'en_name': Flower['en_name'],
             'type': Flower['type'],
             'flower_language': Flower['flower_language'],
-            'similar_flower': Flower['similar_flower'],
-            'combined_flower': Flower['combined_flower'],
+            'similar': Flower['similar'],
+            'combined': Flower['combined'],
             'image': image,
             'description': Flower['description'],
             'price': Flower['price']
         })
 
-    return jsonify({'msg': msg, 'flower_name': flower_name, 'error': error})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/auto_match', methods=['POST'])

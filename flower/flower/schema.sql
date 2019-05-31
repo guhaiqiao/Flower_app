@@ -41,7 +41,7 @@ CREATE TABLE flower (
   flower_language TEXT NOT NULL,
   image TEXT NOT NULL,  -- 用id作为名称
   description TEXT NOT NULL,
-  similar_flower TEXT NOT NULL,
-  combined_flower TEXT NOT NULL,  -- 用cn_name记录常用搭配
+  similar TEXT NOT NULL,
+  combined TEXT NOT NULL,  -- 用cn_name记录常用搭配
   price INTEGER NOT NULL
 );

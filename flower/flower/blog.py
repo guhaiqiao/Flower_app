@@ -1,5 +1,6 @@
 from flask import (Blueprint, request, jsonify)
 from flower.db import get_db
+from flower.auth import check_status
 from flower.exdata import strToImage, imageToStr
 import datetime
 import json
@@ -41,15 +42,17 @@ ALLOWED_EXTENTIONS = ["jpg", "png", "JPG", "PNG", "GIF", "gif"]
 @bp.route('/create', methods=['POST'])
 def create():
     form = json.loads(request.data)
-    id = form['id']  # 用户id
+    id, user = check_status(request)
     title = form['title']
     body = form['body']
     img = form['image']
     error = None
     msg = '发表失败'
 
+    if user is None:
+        error = '请先登录'
     if not title:
-        error = 'Title is required.'
+        error = '请输入标题'
 
     if error is None:
         msg = '发表成功'
@@ -64,6 +67,7 @@ def create():
             ', image, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (title, body, id, 0, '', image, ''))
         db.commit()
+        return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 
@@ -106,25 +110,31 @@ def create():
 def like():
     form = json.loads(request.data)
     msg = '点赞成功'
-    u_id = form['u_id']
+    u_id, user = check_status(request)
     p_id = form['p_id']
-    db = get_db()
-    post = db.execute(
-        'SELECT p.id, nickname, liker, like'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?', (p_id, )).fetchone()
-    if str(u_id) not in post['liker'].split(','):
-        liker = post['liker'] + ',' + str(u_id)
-    else:
-        msg = '取消赞成功'
-        liker = post['liker'].split(',')
-        liker.remove(str(u_id))
-        liker = ','.join(liker)
-    like = len(liker.split(','))
-    db.execute('UPDATE post SET liker = ?, like = ?'
-               ' WHERE id = ?', (liker, like, p_id))
-    db.commit()
-    return jsonify(id=p_id, msg=msg)
+    error = None
+    if user is None:
+        error = '请先登录'
+
+    if error is None:
+        db = get_db()
+        post = db.execute(
+            'SELECT p.id, nickname, liker, like'
+            ' FROM post p JOIN user u ON p.author_id = u.id'
+            ' WHERE p.id = ?', (p_id, )).fetchone()
+        if str(u_id) not in post['liker'].split(','):
+            liker = post['liker'] + ',' + str(u_id)
+        else:
+            msg = '取消赞成功'
+            liker = post['liker'].split(',')
+            liker.remove(str(u_id))
+            liker = ','.join(liker)
+        like = len(liker.split(','))
+        db.execute('UPDATE post SET liker = ?, like = ?'
+                   ' WHERE id = ?', (liker, like, p_id))
+        db.commit()
+        return jsonify(msg=msg)
+    return jsonify(msg=msg, error=error)
 
 
 # @bp.route('/<int:id>/update', methods=('GET', 'POST'))
