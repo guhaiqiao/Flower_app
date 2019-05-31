@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flower.db import get_db
 from flower.exdata import imageToStr, strToImage
 import os
+import json
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 USER_IMAGE = '\\image\\user_image\\'
@@ -23,8 +24,9 @@ def check_phone(phone_number):
 
 @bp.route('/register', methods=['POST'])
 def register():
-    phone_number = request.form['phone_number']
-    password = request.form['password']
+    form = json.loads(request.data)
+    phone_number = form['phone_number']
+    password = form['password']
     db = get_db()
     error = None
     # id = None
@@ -63,8 +65,9 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 def login():
-    phone_number = request.form['phone_number']
-    password = request.form['password']
+    form = json.loads(request.data)
+    phone_number = form['phone_number']
+    password = form['password']
     db = get_db()
     error = None
     msg = '登陆失败'
@@ -107,7 +110,8 @@ def login():
 
 
 def check_status(request):
-    id = int(request.form['id'])
+    form = json.loads(request.data)
+    id = int(form['id'])
     db = get_db()
     user = db.execute('SELECT * FROM user WHERE id = ?', (id, )).fetchone()
     if user is None or user['ip'] != request.remote_addr:
@@ -133,17 +137,18 @@ def check_nickname(nickname):
 
 @bp.route('/personal_info', methods=['POST'])
 def update_personal_info():
+    form = json.loads(request.data)
     id, user = check_status(request)  # 判断用户是否登陆
     msg = '修改失败。'
     error = None
     db = get_db()
-    phone_number = request.form['phone_number']
-    nickname = request.form['nickname'].strip()
-    img = request.form['head']
-    personal_description = request.form['personal_description']
-    sex = request.form['sex']
-    age = int(request.form['age'])
-    region = request.form['region']
+    phone_number = form['phone_number']
+    nickname = form['nickname'].strip()
+    img = form['head']
+    personal_description = form['personal_description']
+    sex = form['sex']
+    age = int(form['age'])
+    region = form['region']
     if user is None:
         error = '请先登录。'
     elif not check_nickname(nickname):
@@ -183,9 +188,10 @@ def update_personal_info():
 
 @bp.route('/password_update', methods=['POST'])
 def update_password():
+    form = json.loads(request.data)
     id, user = check_status(request)
-    old_password = request.form['old_password']
-    new_password = request.form['new_password']
+    old_password = form['old_password']
+    new_password = form['new_password']
     error = None
     msg = '修改失败'
     db = get_db()
@@ -211,9 +217,10 @@ def update_password():
 
 @bp.route('/query', methods=['POST'])
 def query_user():
+    form = json.loads(request.data)
     id, user = check_status(request)
-    type = request.form['type']  # 按昵称或手机号查询
-    User_index = request.form['User']  # 昵称或手机号
+    type = form['type']  # 按昵称或手机号查询
+    User_index = form['User']  # 昵称或手机号
     msg = '查询失败'
     error = None
     if user is None:
@@ -252,10 +259,11 @@ def query_user():
 
 @bp.route('/friend', methods=['POST'])
 def update_friends():
+    form = json.loads(request.data)
     id, user = check_status(request)
-    method = request.form['method']  # 添加或删除好友
-    type = request.form['type']  # 按昵称或手机号添加
-    friend_index = request.form['friend']  # 昵称或手机号
+    method = form['method']  # 添加或删除好友
+    type = form['type']  # 按昵称或手机号添加
+    friend_index = form['friend']  # 昵称或手机号
     msg = '朋友更新失败.'
     error = None
     if user is None:
