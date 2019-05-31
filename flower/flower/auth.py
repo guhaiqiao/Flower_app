@@ -167,7 +167,7 @@ def update_personal_info():
 
         return jsonify({
             'msg': msg,
-            'error': error,
+            # 'error': error,
             'id': id,
             'head': img,
             'phone_number': phone_number,
@@ -203,7 +203,7 @@ def update_password():
             'msg': msg,
             'id': id,
             'password': new_password,
-            'error': error
+            # 'error': error
         })
 
     return jsonify({'msg': msg, 'id': id, 'error': error})
@@ -234,8 +234,8 @@ def query_user():
         head = imageToStr(os.getcwd() + User['head'])
         return jsonify({
             'msg': msg,
-            'error': error,
-            'id': id,
+            # 'error': error,
+            # 'id': id,
             'phone_number': User['phone_number'],
             'nickname': User['nickname'],
             'level': User['level'],
@@ -295,9 +295,9 @@ def update_friends():
                 msg = '删除成功'
         return jsonify({
             'msg': msg,
-            'id': id,
+            # 'id': id,
             'friend': friends,
-            'error': error
+            # 'error': error
         })
 
     return jsonify({'msg': msg, 'id': id, 'error': error})
