@@ -1,4 +1,6 @@
 import sqlite3
+import glob
+import os
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
@@ -23,7 +25,10 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-
+    default = 'D:\\vscode\\Flower_app\\flower\\image\\user_image\\default.jpg'
+    for picture in glob.glob(os.getcwd() + '\\image\\*\\*.jpg'):
+        if picture != default:
+            os.remove(picture)
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
