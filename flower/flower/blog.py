@@ -12,7 +12,7 @@ bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 
 @bp.route('/get_all', methods=['GET'])
-def index():
+def get_all():
     msg = '获取成功'
     db = get_db()
     posts = db.execute(
@@ -37,6 +37,29 @@ def index():
 
 
 ALLOWED_EXTENTIONS = ["jpg", "png", "JPG", "PNG", "GIF", "gif"]
+
+
+@bp.route('/get_one', methods=['POST'])
+def get_one():
+    form = json.loads(request.data)
+    p_id = form['id']
+    msg = '获取成功'
+    db = get_db()
+    post = db.execute(
+        'SELECT p.id, nickname, liker, like'
+        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' WHERE p.id = ?', (p_id, )).fetchone()
+    blog = {}
+    infos = [
+        'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
+        'liker', 'comment'
+    ]
+    for info in infos:
+        blog[info] = post[info]
+    blog['image'] = ''
+    if post['image']:
+        blog['image'] = imageToStr(os.getcwd() + post['image'])
+    return jsonify(blog=blog, msg=msg)
 
 
 @bp.route('/create', methods=['POST'])
@@ -67,7 +90,7 @@ def create():
             ', image, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (title, body, id, 0, '', image, ''))
         db.commit()
-        return jsonify(msg=msg)
+        # return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 

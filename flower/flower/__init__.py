@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, jsonify
 import os
+import glob
 import socket
-
+from flower.exdata import imageToStr
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -22,6 +23,15 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return 'Hello, World!'
+
+    @app.route('/index', methods=['GET'])
+    def index():
+        msg = '获取成功'
+        pictures = []
+        for picture in glob.glob(os.getcwd() + '\\image\\index_image\\*.jpg'):
+            pictures.append(imageToStr(picture))
+        return jsonify(pictures=pictures, msg=msg)
+
 
     @app.template_filter('split')
     def reverse_filter(s):
