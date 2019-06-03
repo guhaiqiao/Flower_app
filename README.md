@@ -7,6 +7,7 @@
 <style>table th:nth-of-type(5) {width: 60px;}</style>
 | URL                       | 用途          | 接收参数                                                                | 返回参数(成功)                                                                                                  | 返回参数(失败) |
 | ------------------------- | ------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------- |
+| **/index**                | 首页          | None                                                                    | msg, pictures                                                                                                   | None           |
 | **/auth/register**        | 注册          | phone_number, password                                                  | msg                                                                                                             | msg, error     |
 | **/auth/login**           | 登陆          | phone_number, password                                                  | msg, id, phone_number, password, sex, nickname, level, EXPoint, friend, age, region, personal_description, head | msg, error     |
 | **/auth/personal_info**   | 修改个人信息  | id, phone_number, nickname, img, personal_description, sex, age, region | msg, id, phone_number, nickname, img, sex, personal_description, age, region                                    | msg, error     |
