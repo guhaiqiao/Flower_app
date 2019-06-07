@@ -36,19 +36,28 @@ def create_app(test_config=None):
                 pictures.append(imageToStr(picture))
             return jsonify(pictures=pictures, msg=msg)
         else:
-            msg = '筛选成功'
-            like = json.loads(request.data)['like']
-            pictures = []
-            for picture in glob.glob(os.getcwd() +
-                                     '\\image\\index_image\\*.jpg'):
-                if like:
-                    pictures.append(imageToStr(picture))
-            return jsonify(pictures=pictures, msg=msg)
+            msg = '筛选失败'
+            data = json.loads(request.data)
+            likes = data['like']
+            dislikes = data['dislike']
+            # price = data['price']
+            error = None
+            if not likes:
+                error = '请输入合适的筛选条件'
 
-
-    @app.template_filter('split')
-    def reverse_filter(s):
-        return s.split('|')[:-1]
+            if error is None:
+                msg = '筛选成功'
+                pictures = []
+                for picture in glob.glob(os.getcwd() +
+                                         '\\image\\index_image\\*.jpg'):
+                    name = picture.split('\\')[-1].split('.')[0].split('_')
+                    for like in likes:
+                        if str(like) in name:
+                            for dislike in dislikes:
+                                if str(dislike) not in name:
+                                    pictures.append(imageToStr(picture))
+                return jsonify(pictures=pictures, msg=msg, error=error)
+            return jsonify(msg=msg, error=error)
 
     app.config['JSON_AS_ASCII'] = False
 

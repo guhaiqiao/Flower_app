@@ -6,12 +6,12 @@ import os
 import json
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-USER_IMAGE = '\\image\\user_image\\'
 PHONE_PREFIX = [
     130, 131, 132, 155, 156, 185, 186, 145, 176, 134, 135, 136, 137, 138, 139,
     147, 150, 151, 152, 157, 158, 159, 178, 182, 183, 184, 187, 188, 133, 153,
     189
 ]
+USER_IMAGE = '\\image\\user_image\\'
 
 
 def check_phone(phone_number):
@@ -78,6 +78,7 @@ def login():
         error = '密码错误'
 
     if error is None:
+        msg = '登陆成功.'
         if user['ip'] != '':
             msg += '用户在另一ip已登录 {}'.format(
                 user['ip'])
@@ -86,7 +87,6 @@ def login():
         db.commit()
         head = imageToStr(os.getcwd() + user['head'])
 
-        msg = '登陆成功.'
         return jsonify({
             'msg': msg,
             'id': user['id'],
@@ -169,6 +169,7 @@ def update_personal_info():
         msg = '修改成功'
 
         return jsonify({
+            'error': error,
             'msg': msg,
             'head': img,
             'phone_number': phone_number,

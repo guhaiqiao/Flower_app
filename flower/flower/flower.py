@@ -1,7 +1,7 @@
 from flask import (Blueprint, request, jsonify)
 from flower.db import get_db
 from flower.exdata import imageToStr
-# import flower.auto_match
+from flower.auto_match import auto_match
 import os
 import json
 
@@ -57,30 +57,20 @@ def query_flower():
 
 
 @bp.route('/auto_match', methods=['POST'])
-def auto_match():
-    msg = '搭配成功'
-    # error = None
-    # total_price = request.form['total_price']
-    like = request.form['like'].split(',')
-    img = ''
-    # dislike = request.form['dislike']
-    # matchs = auto_match(like, dislike, total_price)
-    # if not match:
-    #     error = '无法搭配'
-    # if error is None:
-    #     return jsonify(matchs=matchs)
-    if '1' in like:
-        if '2' in like:
-            pic = '1_2.jpg'
-        elif '12' in like:
-            pic = '1_12.jpg'
-        elif '15' in like:
-            pic = '1_15.jpg'
-    if '5' in like:
-        pic = '5_15.jpg'
-    img = imageToStr(os.getcwd() + '\\flower_image\\' + pic)
-
-    return jsonify(img=img, msg=msg)
+def match():
+    msg = '搭配失败'
+    data = json.loads(request.data)
+    like = data['like']
+    dislike = data['dislike']
+    price = data['price']
+    error = None
+    if not like or price <= 0:
+        error = '请输入合适的条件'
+    if error is None:
+        msg = '搭配成功'
+        methods = auto_match(like, dislike, price)
+        return jsonify(methods=methods, msg=msg, error=error)
+    return jsonify(msg=msg, error=error)
 
 
 def import_flower(cn_name, en_name, type, flower_language, image, description,
