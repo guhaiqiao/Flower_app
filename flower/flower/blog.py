@@ -115,20 +115,6 @@ def create():
     return jsonify(msg=msg, error=error)
 
 
-# return jsonify(
-#             msg=msg,
-#             error=error,
-#             nickname=nickname,
-#             title=title,
-#             body=body,
-#             like=0,
-#             liker='',
-#             image=image,
-#             comment='',
-#             create_time=create_time
-#             )
-
-
 @bp.route('/comment', methods=['POST'])
 def comment():
     u_id, user = check_status(request)
