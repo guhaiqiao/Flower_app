@@ -32,7 +32,7 @@ def create_app(test_config=None):
             msg = '获取成功'
             pictures = []
             for picture in glob.glob(os.getcwd() +
-                                     '\\image\\index_image\\*.jpg'):
+                                     '/image/index_image/*.jpg'):
                 pictures.append(imageToStr(picture))
             return jsonify(pictures=pictures, msg=msg)
         else:
@@ -49,8 +49,8 @@ def create_app(test_config=None):
                 msg = '筛选成功'
                 pictures = []
                 for picture in glob.glob(os.getcwd() +
-                                         '\\image\\index_image\\*.jpg'):
-                    name = picture.split('\\')[-1].split('.')[0].split('_')
+                                         '/image/index_image/*.jpg'):
+                    name = picture.split('/')[-1].split('.')[0].split('_')
                     for like in likes:
                         if str(like) in name:
                             for dislike in dislikes:

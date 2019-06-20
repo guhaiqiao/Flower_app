@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 
-BLOG_IMAGE = '\\image\\blog_image\\'
+BLOG_IMAGE = '/image/blog_image/'
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 

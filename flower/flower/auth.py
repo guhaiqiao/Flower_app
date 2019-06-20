@@ -11,7 +11,7 @@ PHONE_PREFIX = [
     147, 150, 151, 152, 157, 158, 159, 178, 182, 183, 184, 187, 188, 133, 153,
     189
 ]
-USER_IMAGE = '\\image\\user_image\\'
+USER_IMAGE = '/image/user_image/'
 
 
 def check_phone(phone_number):
