@@ -5,7 +5,7 @@
 ## Python gitignore template
 
 # Byte-compiled / optimized / DLL files
-/flower/flower/__pycache__/
+__pycache__/
 *.py[cod]
 *$py.class
 
