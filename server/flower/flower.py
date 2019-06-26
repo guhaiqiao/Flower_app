@@ -5,7 +5,7 @@ from flower.auto_match import auto_match
 import os
 import json
 
-FLOWER_IMAGE = '\\image\\flower_image\\'
+FLOWER_IMAGE = '/image/flower_image/'
 bp = Blueprint('flower', __name__, url_prefix='/flower')
 
 
