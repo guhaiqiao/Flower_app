@@ -25,9 +25,8 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-    default = 'D:/vscode/Flower_app/flower/image/user_image/default.jpg'
     for picture in glob.glob(os.getcwd() + '/image/*/*.jpg'):
-        if picture != default:
+        if picture.split('/')[-1].split('.')[0] != 'default':
             os.remove(picture)
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
