@@ -17,6 +17,7 @@
 | **/blog/create**          | 发表blog      | id, title, body, image                                                  | msg                                                                                                             | msg, error     |
 | **/blog/like**            | 点赞某一blog  | id, p_id                                                                | msg                                                                                                             | msg, error     |
 | **/blog/comment**         | 评论某一blog  | id, p_id, comment                                                       | msg                                                                                                             | msg, error     |
+| **/blog/image**           | 查看大图      | p_id                                                                    | image, msg                                                                                                      | msg, error     |
 | **/flower/query**         | 查询某种花    | flower_name                                                             | msg, cn_name, en_name, type, description, flower_language, image, price, similar, combined                      | msg, error     |
 | **/flower/auto_match**    | 自动搭配      | like, dislike, price                                                    | msg, flower(list)                                                                                               | msg, error     |
 

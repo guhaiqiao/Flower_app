@@ -1,7 +1,7 @@
 from flask import (Blueprint, request, jsonify)
 from flower.db import get_db
 from flower.auth import check_status
-from flower.exdata import strToImage, imageToStr
+from flower.exdata import *
 import datetime
 import json
 import os
@@ -9,6 +9,27 @@ import os
 BLOG_IMAGE = '/image/blog_image/'
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
+
+
+@bp.route('/get_image', methods=['GET'])
+def get_image():
+    form = json.loads(request.data)
+    p_id = int(form['p_id'])
+    msg = '获取失败'
+    error = None
+    db = get_db()
+    post = db.execute('SELECT p.id, image FROM post p  WHERE p.id = ?',
+                      (p_id, )).fetchone()
+    if post is None:
+        error = '该blog不存在'
+
+    if post['image'] == '':
+        error = '图片不存在'
+    if error is None:
+        msg = '获取成功'
+        image = imageToStr(os.getcwd() + post['image'])
+        return jsonify(image=image, msg=msg, error=error)
+    return jsonify(error=error, msg=msg)
 
 
 @bp.route('/get_all', methods=['GET'])
@@ -31,7 +52,8 @@ def get_all():
             blog[info] = post[info]
         blog['image'] = ''
         if post['image']:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
+            blog['image'] = imageToStr(get_outfile(os.getcwd() +
+                                                   post['image']))
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -71,7 +93,8 @@ def get_one():
             blog[info] = post[info]
         blog['image'] = ''
         if post['image']:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
+            blog['image'] = imageToStr(get_outfile(os.getcwd() +
+                                                   post['image']))
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -79,7 +102,7 @@ def get_one():
             nickname = db.execute('SELECT * FROM user WHERE id = ?',
                                   (int(comment[0]), )).fetchone()['nickname']
             blog['comment'].append([nickname, comment[1]])
-        return jsonify(blog=blog, msg=msg, error=error)
+        return jsonify(blog=blog, msg=msg)
     return jsonify(error=error, msg=msg)
 
 
@@ -104,14 +127,16 @@ def create():
         image = ''
         if img:
             image = BLOG_IMAGE + str(id) + '_' + create_time + '.jpg'
-            strToImage(img, os.getcwd() + image)
+            image_path = os.getcwd() + image
+            strToImage(img, image_path)
+            compress_image(image_path, mb=50)
         db = get_db()
         db.execute(
             'INSERT INTO post (title, body, author_id, like, liker'
             ', image, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (title, body, id, 0, '', image, ''))
         db.commit()
-        # return jsonify(msg=msg)
+        return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 
@@ -137,7 +162,7 @@ def comment():
         db.execute('UPDATE post SET comment = ?'
                    ' WHERE id = ?', (comment, p_id))
         db.commit()
-        # return jsonify(msg=msg, error=error)
+        return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 
@@ -169,7 +194,7 @@ def like():
         db.execute('UPDATE post SET liker = ?, like = ?'
                    ' WHERE id = ?', (liker, like, p_id))
         db.commit()
-        return jsonify(msg=msg, error=error)
+        return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 
