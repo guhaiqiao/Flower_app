@@ -24,7 +24,15 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
+    paths = [
+        '/image/user_image', '/image/flower_image', '/image/blog_image',
+        '/image/index_image'
+    ]
+    for path in paths:
+        if not os.path.exists(os.getcwd() + path):
+            os.mkdir(os.getcwd() + path)
     for picture in glob.glob(os.getcwd() + '/image/*/*.jpg'):
+        print(picture.split('/')[-1])
         if picture.split('/')[-1] != 'default.jpg':
             os.remove(picture)
     with current_app.open_resource('schema.sql') as f:
