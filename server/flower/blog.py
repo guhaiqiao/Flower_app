@@ -6,19 +6,19 @@ import datetime
 import json
 import os
 
-BLOG_IMAGE = '/image/blog_image/'
-
+BLOG_IMAGE = '\\image\\blog_image\\'
+IMAGE_SIZE = 50  # KB
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 
-@bp.route('/get_image', methods=['GET'])
+@bp.route('/get_image', methods=['POST'])
 def get_image():
     form = json.loads(request.data)
     p_id = int(form['p_id'])
     msg = '获取失败'
     error = None
     db = get_db()
-    post = db.execute('SELECT p.id, image FROM post p  WHERE p.id = ?',
+    post = db.execute('SELECT id, image FROM post WHERE id = ?',
                       (p_id, )).fetchone()
     if post is None:
         error = '该blog不存在'
@@ -38,7 +38,7 @@ def get_all():
     db = get_db()
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, nickname,'
-        ' like, liker, image, comment'
+        ' like, liker, image, image_size, comment'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' ORDER BY created DESC').fetchall()
     blogs = {}
@@ -51,7 +51,10 @@ def get_all():
         for info in infos:
             blog[info] = post[info]
         blog['image'] = ''
-        if post['image']:
+        blog['image_size'] = float(post['image_size'])
+        if 0 < blog['image_size'] <= IMAGE_SIZE:
+            blog['image'] = imageToStr(os.getcwd() + post['image'])
+        elif blog['image_size'] > IMAGE_SIZE:
             blog['image'] = imageToStr(get_outfile(os.getcwd() +
                                                    post['image']))
         comments = blog['comment'].split('||')[:-1]
@@ -77,7 +80,7 @@ def get_one():
     db = get_db()
     post = db.execute(
         'SELECT p.id, nickname, liker, like, title, body, created, image'
-        ', comment, author_id'
+        ', image_size, comment, author_id'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?', (p_id, )).fetchone()
     if post is None:
@@ -92,7 +95,10 @@ def get_one():
         for info in infos:
             blog[info] = post[info]
         blog['image'] = ''
-        if post['image']:
+        blog['image_size'] = float(post['image_size'])
+        if 0 < blog['image_size'] <= IMAGE_SIZE:
+            blog['image'] = imageToStr(os.getcwd() + post['image'])
+        elif blog['image_size'] > IMAGE_SIZE:
             blog['image'] = imageToStr(get_outfile(os.getcwd() +
                                                    post['image']))
         comments = blog['comment'].split('||')[:-1]
@@ -125,18 +131,22 @@ def create():
         msg = '发表成功'
         create_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         image = ''
+        image_size = 0
         if img:
             image = BLOG_IMAGE + str(id) + '_' + create_time + '.jpg'
             image_path = os.getcwd() + image
+            print(image_path)
             strToImage(img, image_path)
-            compress_image(image_path, mb=50)
+            image_size = round(get_size(image_path), 3)
+            compress_image(image_path, mb=IMAGE_SIZE)
         db = get_db()
+        print(image_size)
         db.execute(
             'INSERT INTO post (title, body, author_id, like, liker'
-            ', image, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (title, body, id, 0, '', image, ''))
+            ', image, image_size, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            (title, body, id, 0, '', image, str(image_size), ''))
         db.commit()
-        return jsonify(msg=msg)
+        return jsonify(msg=msg, error=error)
     return jsonify(msg=msg, error=error)
 
 

@@ -24,7 +24,7 @@ def get_size(file):
     return size / 1024
 
 
-def get_outfile(infile, outfile):
+def get_outfile(infile, outfile=''):
     if outfile:
         return outfile
     dir, suffix = os.path.splitext(infile)
@@ -58,5 +58,5 @@ def compress_image(infile, outfile='', mb=150, step=10, quality=80):
 if __name__ == '__main__':
     path = os.getcwd()
     compress_image(
-        "D:\\vscode\\Flower_app\\server\\image\\blog_image\\1_20190607183801.jpg",
-        mb=1)
+        "D:\\vscode\\Flower_app\\server\\image\\blog_image\\1_20190710141004.jpg",
+        mb=50)
