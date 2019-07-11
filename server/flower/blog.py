@@ -1,13 +1,16 @@
-from flask import (Blueprint, request, jsonify)
-from flower.db import get_db
-from flower.auth import check_status
-from flower.exdata import *
 import datetime
 import json
 import os
 
+from flask import Blueprint, jsonify, request
+
+from flower.auth import check_status
+from flower.db import get_db
+from flower.exdata import *
+
 BLOG_IMAGE = '/image/blog_image/'
 IMAGE_SIZE = 50  # KB
+LIMIT = 400  # 长宽最大像素
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 
@@ -38,7 +41,7 @@ def get_all():
     db = get_db()
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, nickname,'
-        ' like, liker, image, image_size, comment'
+        ' like, liker, image, image_size, image_compressed, comment'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' ORDER BY created DESC').fetchall()
     blogs = {}
@@ -52,11 +55,11 @@ def get_all():
             blog[info] = post[info]
         blog['image'] = ''
         blog['image_size'] = float(post['image_size'])
-        if 0 < blog['image_size'] <= IMAGE_SIZE:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
-        elif blog['image_size'] > IMAGE_SIZE:
+        if post['image_compressed']:
             blog['image'] = imageToStr(get_outfile(os.getcwd() +
                                                    post['image']))
+        else:
+            blog['image'] = imageToStr(os.getcwd() + post['image'])
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -80,7 +83,7 @@ def get_one():
     db = get_db()
     post = db.execute(
         'SELECT p.id, nickname, liker, like, title, body, created, image'
-        ', image_size, comment, author_id'
+        ', image_size, image_compressed, comment, author_id'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?', (p_id, )).fetchone()
     if post is None:
@@ -96,11 +99,11 @@ def get_one():
             blog[info] = post[info]
         blog['image'] = ''
         blog['image_size'] = float(post['image_size'])
-        if 0 < blog['image_size'] <= IMAGE_SIZE:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
-        elif blog['image_size'] > IMAGE_SIZE:
+        if post['image_compressed']:
             blog['image'] = imageToStr(get_outfile(os.getcwd() +
                                                    post['image']))
+        else:
+            blog['image'] = imageToStr(os.getcwd() + post['image'])
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -135,16 +138,17 @@ def create():
         if img:
             image = BLOG_IMAGE + str(id) + '_' + create_time + '.jpg'
             image_path = os.getcwd() + image
-            print(image_path)
             strToImage(img, image_path)
             image_size = round(get_size(image_path), 3)
-            compress_image(image_path, mb=IMAGE_SIZE)
+            # compress_image(image_path, mb=IMAGE_SIZE)
+            img_compress = resize(image_path, LIMIT)
         db = get_db()
         print(image_size)
         db.execute(
             'INSERT INTO post (title, body, author_id, like, liker'
-            ', image, image_size, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            (title, body, id, 0, '', image, str(image_size), ''))
+            ', image, image_size, image_compressed, comment) VALUES (?, ?, ?, '
+            '?, ?, ?, ?, ?, ?)',
+            (title, body, id, 0, '', image, str(image_size), img_compress, ''))
         db.commit()
         return jsonify(msg=msg, error=error)
     return jsonify(msg=msg, error=error)

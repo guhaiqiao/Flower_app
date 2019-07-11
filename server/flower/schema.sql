@@ -28,6 +28,7 @@ CREATE TABLE post (
   liker TEXT NOT NULL,
   image TEXT NOT NULL,
   image_size TEXT NOT NULL,
+  image_compressed INTEGER NOT NULL,
   comment TEXT NOT NULL,
   FOREIGN KEY
 (author_id) REFERENCES user
