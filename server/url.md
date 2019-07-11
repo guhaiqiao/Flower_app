@@ -13,7 +13,7 @@
 | **/auth/logout**          | 登出          | id                                                                      | msg                                                                                                             | msg, error     |
 | **/auth/check_status**    | 检查登录状态  | id                                                                      | flag                                                                                                            | None           |
 | **/blog/get_all**         | 获取所有blog  | None                                                                    | msg, blogs                                                                                                      | None           |
-| **/blog/get_one**         | 获取某一blog  | p_id                                                                    | msg, blog                                                                                                       | msg, error     |
+| **/blog/get_one**         | 获取某一blog  | p_id                                                                    | msg, blog                                                                                                  | msg, error     |
 | **/blog/create**          | 发表blog      | id, title, body, image                                                  | msg                                                                                                             | msg, error     |
 | **/blog/like**            | 点赞某一blog  | id, p_id                                                                | msg                                                                                                             | msg, error     |
 | **/blog/comment**         | 评论某一blog  | id, p_id, comment                                                       | msg                                                                                                             | msg, error     |
@@ -21,3 +21,4 @@
 | **/flower/query**         | 查询某种花    | flower_name                                                             | msg, cn_name, en_name, type, description, flower_language, image, price, similar, combined                      | msg, error     |
 | **/flower/auto_match**    | 自动搭配      | like, dislike, price                                                    | msg, flower(list)                                                                                               | msg, error     |
 
+blog：'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like', 'liker', 'comment', 'image', 'image_size'
