@@ -18,6 +18,8 @@ bp = Blueprint('blog', __name__, url_prefix='/blog')
 @bp.route('/get_image', methods=['GET'])
 def get_image():
     p_id = int(request.args.get('p_id'))
+    index = int(request.args.get('index'))
+
     msg = '获取失败'
     error = None
     db = get_db()
@@ -25,14 +27,16 @@ def get_image():
                       (p_id, )).fetchone()
     if post is None:
         error = '该blog不存在'
-
-    if post['image'] == '':
+    imgs = post['image'].split(',')
+    if imgs is None or len(imgs) <= index:
         error = '图片不存在'
+
     if error is None:
-        img_type = post['image'].split('.')[-1]
+        img = imgs[index]
+        img_type = img.split('.')[-1]
         if img_type == 'jpg':
             img_type = 'jpeg'
-        img_data = open(os.getcwd() + post['image'], "rb").read()
+        img_data = open(os.getcwd() + img, "rb").read()
         response = make_response(img_data)
         response.headers['Content-Type'] = 'image/' + img_type
         return response
@@ -57,13 +61,16 @@ def get_all():
         ]
         for info in infos:
             blog[info] = post[info]
-        blog['image'] = ''
-        blog['image_size'] = float(post['image_size'])
-        if post['image_compressed']:
-            blog['image'] = imageToStr(get_outfile(os.getcwd() +
-                                                   post['image']))
-        else:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
+        blog['image'] = []
+        blog['image_size'] = post['image_size']
+        img_compressed = post['image_compressed'].split(',')
+        for i, img in enumerate(post['image'].split(',')):
+            if img_compressed[i]:
+                blog['image'].append(imageToStr(get_outfile(os.getcwd() +
+                                                            img)))
+            else:
+                blog['image'].append(imageToStr(os.getcwd() + img))
+        blog['image'] = ','.join(blog['image'])
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -101,13 +108,16 @@ def get_one():
         ]
         for info in infos:
             blog[info] = post[info]
-        blog['image'] = ''
-        blog['image_size'] = float(post['image_size'])
-        if post['image_compressed']:
-            blog['image'] = imageToStr(get_outfile(os.getcwd() +
-                                                   post['image']))
-        else:
-            blog['image'] = imageToStr(os.getcwd() + post['image'])
+        blog['image'] = []
+        blog['image_size'] = post['image_size']
+        img_compressed = post['image_compressed'].split(',')
+        for i, img in enumerate(post['image'].split(',')):
+            if img_compressed[i]:
+                blog['image'].append(imageToStr(get_outfile(os.getcwd() +
+                                                            img)))
+            else:
+                blog['image'].append(imageToStr(os.getcwd() + img))
+        blog['image'] = ','.join(blog['image'])
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
@@ -125,7 +135,8 @@ def create():
     id, user = check_status(request)
     title = form['title']
     body = form['body']
-    img = form['image']
+    imgs = form['image'].split(',')
+    print(len(imgs))
     error = None
     msg = '发表失败'
 
@@ -137,22 +148,25 @@ def create():
     if error is None:
         msg = '发表成功'
         create_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        image = ''
-        image_size = 0
-        if img:
-            image = BLOG_IMAGE + str(id) + '_' + create_time + '.jpg'
-            image_path = os.getcwd() + image
-            strToImage(img, image_path)
-            image_size = round(get_size(image_path), 3)
-            # compress_image(image_path, mb=IMAGE_SIZE)
-            img_compress = resize(image_path, LIMIT)
+        image = []
+        img_compress = []
+        image_size = []
+        if imgs:
+            for index, img in enumerate(imgs):
+                image.append(BLOG_IMAGE + str(id) + '_' + create_time + '_' +
+                             str(index) + '.jpg')
+                image_path = os.getcwd() + image[index]
+                strToImage(img, image_path)
+                image_size.append(str(round(get_size(image_path), 3)))
+                img_compress.append(str(resize(image_path, LIMIT)))
         db = get_db()
         print(image_size)
         db.execute(
             'INSERT INTO post (title, body, author_id, like, liker'
             ', image, image_size, image_compressed, comment) VALUES (?, ?, ?, '
             '?, ?, ?, ?, ?, ?)',
-            (title, body, id, 0, '', image, str(image_size), img_compress, ''))
+            (title, body, id, 0, '', ','.join(image), ','.join(image_size),
+             ','.join(img_compress), ''))
         db.commit()
         return jsonify(msg=msg, error=error)
     return jsonify(msg=msg, error=error)

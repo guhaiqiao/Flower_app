@@ -65,11 +65,11 @@ def resize(infile, limit):
     """
     img = Image.open(infile)
     scale = 1
-    flag = False
+    flag = 0
     w, h = img.size
     if w > limit or h > limit:
         scale = max(w / limit, h / limit)
-        flag = True
+        flag = 1
     Img = img.resize((int(w / scale), int(h / scale)), Image.ANTIALIAS)
     Img.save(get_outfile(infile))
     return flag
