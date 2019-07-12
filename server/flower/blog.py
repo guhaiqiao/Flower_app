@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 
 from flower.auth import check_status
 from flower.db import get_db
@@ -15,10 +15,9 @@ LIMIT = 400  # 长宽最大像素
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 
-@bp.route('/get_image', methods=['POST'])
+@bp.route('/get_image', methods=['GET'])
 def get_image():
-    form = json.loads(request.data)
-    p_id = int(form['p_id'])
+    p_id = int(request.args.get('p_id'))
     msg = '获取失败'
     error = None
     db = get_db()
@@ -30,9 +29,13 @@ def get_image():
     if post['image'] == '':
         error = '图片不存在'
     if error is None:
-        msg = '获取成功'
-        image = imageToStr(os.getcwd() + post['image'])
-        return jsonify(image=image, msg=msg, error=error)
+        img_type = post['image'].split('.')[-1]
+        if img_type == 'jpg':
+            img_type = 'jpeg'
+        img_data = open(os.getcwd() + post['image'], "rb").read()
+        response = make_response(img_data)
+        response.headers['Content-Type'] = 'image/' + img_type
+        return response
     return jsonify(error=error, msg=msg)
 
 
