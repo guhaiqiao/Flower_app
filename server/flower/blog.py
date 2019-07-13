@@ -8,7 +8,7 @@ from flower.auth import check_status
 from flower.db import get_db
 from flower.exdata import (imageToStr, strToImage, get_outfile, get_size,
                            resize)
-
+from flower.Request import Request
 BLOG_IMAGE = '/image/blog_image/'
 IMAGE_SIZE = 50  # KB
 LIMIT = 400  # 长宽最大像素
@@ -17,8 +17,7 @@ bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 @bp.route('/get_image', methods=['GET'])
 def get_image():
-    p_id = int(request.args.get('p_id'))
-    index = int(request.args.get('index'))
+    p_id, index = Request(request, 'GET', 'p_id', 'index').load()
 
     msg = '获取失败'
     error = None
@@ -52,8 +51,9 @@ def get_all():
         ' like, liker, image, image_size, image_compressed, comment'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' ORDER BY created DESC').fetchall()
-    blogs = {}
-    for i, post in enumerate(posts):
+    blogs = []
+    print(len(posts))
+    for post in enumerate(posts):
         blog = {}
         infos = [
             'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
@@ -78,7 +78,7 @@ def get_all():
             nickname = db.execute('SELECT * FROM user WHERE id = ?',
                                   (int(comment[0]), )).fetchone()['nickname']
             blog['comment'].append([nickname, comment[1]])
-        blogs[i] = blog
+        blogs.append(blog)
     return jsonify(blogs=blogs, msg=msg)
 
 
@@ -87,8 +87,9 @@ ALLOWED_EXTENTIONS = ["jpg", "png", "JPG", "PNG", "GIF", "gif"]
 
 @bp.route('/get_one', methods=['POST'])
 def get_one():
-    form = json.loads(request.data)
-    p_id = int(form['p_id'])
+    p_id = Request(request, 'p_id').load()
+    # form = json.loads(request.data)
+    # p_id = int(form['p_id'])
     msg = '获取失败'
     error = None
     db = get_db()
@@ -133,8 +134,10 @@ def get_one():
 def create():
     form = json.loads(request.data)
     id, user = check_status(request)
+    # title, body, imgs = Request(request, 'POST', 'title', 'body', 'image')
     title = form['title']
     body = form['body']
+    # imgs = imgs.split(',')
     imgs = form['image'].split(',')
     print(len(imgs))
     error = None
@@ -151,8 +154,8 @@ def create():
         image = []
         img_compress = []
         image_size = []
-        if imgs:
-            for index, img in enumerate(imgs):
+        for index, img in enumerate(imgs):
+            if img:
                 image.append(BLOG_IMAGE + str(id) + '_' + create_time + '_' +
                              str(index) + '.jpg')
                 image_path = os.getcwd() + image[index]
