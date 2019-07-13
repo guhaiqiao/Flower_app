@@ -53,7 +53,7 @@ def get_all():
         ' ORDER BY created DESC').fetchall()
     blogs = []
     print(len(posts))
-    for post in enumerate(posts):
+    for post in posts:
         blog = {}
         infos = [
             'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
@@ -63,13 +63,16 @@ def get_all():
             blog[info] = post[info]
         blog['image'] = []
         blog['image_size'] = post['image_size']
-        img_compressed = post['image_compressed'].split(',')
-        for i, img in enumerate(post['image'].split(',')):
-            if img_compressed[i]:
-                blog['image'].append(imageToStr(get_outfile(os.getcwd() +
-                                                            img)))
-            else:
-                blog['image'].append(imageToStr(os.getcwd() + img))
+        if post['image']:
+            print(blog['image_size'])
+            img_compressed = post['image_compressed'].split(',')
+            for index, img in enumerate(post['image'].split(',')):
+                # print(img_compressed[index])
+                if int(img_compressed[index]):
+                    blog['image'].append(
+                        imageToStr(get_outfile(os.getcwd() + img)))
+                else:
+                    blog['image'].append(imageToStr(os.getcwd() + img))
         blog['image'] = ','.join(blog['image'])
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
