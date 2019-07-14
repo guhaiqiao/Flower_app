@@ -257,7 +257,7 @@ def like():
             msg = '取消赞成功'
             liker = post['liker'].split(',')[:-1]
             liker.remove(str(u_id))
-            liker = ','.join(liker)
+            liker = ','.join(liker) + ','
         like = len(liker.split(',')) - 1
         db.execute('UPDATE post SET liker = ?, like = ?'
                    ' WHERE id = ?', (liker, like, p_id))
