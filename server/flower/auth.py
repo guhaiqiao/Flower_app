@@ -293,7 +293,7 @@ def update_friends():
                 msg = '删除成功'
         return jsonify({
             'msg': msg,
-            'friend': friends,
+            'friends': friends.split(',')[-1],
         })
 
     return jsonify({'msg': msg, 'error': error})
