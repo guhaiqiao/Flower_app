@@ -1,4 +1,4 @@
-import datetime
+import time
 import json
 import os
 import base64
@@ -183,7 +183,7 @@ def create():
 
     if error is None:
         msg = '发表成功'
-        create_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        create_time = time.strftime("%Y%m%d%H%M%S")
         image = []
         img_compress = []
         image_size = []
