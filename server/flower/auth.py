@@ -27,6 +27,7 @@ def register():
     form = json.loads(request.data)
     phone_number = form['phone_number']
     password = form['password']
+    nickname = form['nickname']
     db = get_db()
     error = None
     # id = None
@@ -48,7 +49,7 @@ def register():
             ' level, EXPoint, friend, personal_description, sex, age, region)'
             'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (request.remote_addr, phone_number,
-             generate_password_hash(password), 'None', USER_IMAGE +
+             generate_password_hash(password), nickname, USER_IMAGE +
              'default.jpg', 1, 0, '', '这个人很懒，什么也没有留下', '未知', '0', '未知'))
         db.commit()
         msg = '注册成功'
