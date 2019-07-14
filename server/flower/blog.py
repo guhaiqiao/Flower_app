@@ -74,14 +74,14 @@ def get_all():
                 else:
                     blog['image'].append(imageToStr(os.getcwd() + img))
         # blog['image'] = ','.join(blog['image'])
-
-        likers = post['liker'].split(',')
         blog['likers'] = []
-        for liker in likers:
-            u_id = int(liker)
-            nickname = db.execute('SELECT * FROM user WHERE id = ?',
-                                  (u_id, )).fetchone()['nickname']
-            blog['likers'].append({'id': u_id, 'nickname': nickname})
+        if post['like'] != 0:
+            likers = post['liker'].split(',')[1:]
+            for liker in likers:
+                u_id = int(liker)
+                nickname = db.execute('SELECT * FROM user WHERE id = ?',
+                                      (u_id, )).fetchone()['nickname']
+                blog['likers'].append({'id': u_id, 'nickname': nickname})
 
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
@@ -138,13 +138,14 @@ def get_one():
                 blog['image'].append(imageToStr(os.getcwd() + img))
         # blog['image'] = ','.join(blog['image'])
 
-        likers = post['liker'].split(',')
         blog['likers'] = []
-        for liker in likers:
-            u_id = int(liker)
-            nickname = db.execute('SELECT * FROM user WHERE id = ?',
-                                  (u_id, )).fetchone()['nickname']
-            blog['likers'].append({'id': u_id, 'nickname': nickname})
+        if post['like'] != 0:
+            likers = post['liker'].split(',')[1:]
+            for liker in likers:
+                u_id = int(liker)
+                nickname = db.execute('SELECT * FROM user WHERE id = ?',
+                                      (u_id, )).fetchone()['nickname']
+                blog['likers'].append({'id': u_id, 'nickname': nickname})
 
         comments = post['comment'].split('.')[:-1]
         blog['comment'] = []
@@ -250,6 +251,7 @@ def like():
             'SELECT p.id, nickname, liker, like'
             ' FROM post p JOIN user u ON p.author_id = u.id'
             ' WHERE p.id = ?', (p_id, )).fetchone()
+        like = post['like']
         likers = post['liker'].split(',')
         if str(u_id) not in likers:
             likers.append(str(u_id))
@@ -258,7 +260,7 @@ def like():
             msg = '取消赞成功'
             likers.remove(str(u_id))
         liker = ','.join(likers)
-        like = len(liker.split(','))
+        like = len(liker.split(',')) - 1
         db.execute('UPDATE post SET liker = ?, like = ?'
                    ' WHERE id = ?', (liker, like, p_id))
         db.commit()
