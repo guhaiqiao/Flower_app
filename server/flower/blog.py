@@ -75,7 +75,7 @@ def get_all():
                     blog['image'].append(imageToStr(os.getcwd() + img))
         # blog['image'] = ','.join(blog['image'])
 
-        likers = post['liker'].split(',')[:-1]
+        likers = post['liker'].split(',')
         blog['likers'] = []
         for liker in likers:
             u_id = int(liker)
@@ -138,7 +138,7 @@ def get_one():
                 blog['image'].append(imageToStr(os.getcwd() + img))
         # blog['image'] = ','.join(blog['image'])
 
-        likers = post['liker'].split(',')[:-1]
+        likers = post['liker'].split(',')
         blog['likers'] = []
         for liker in likers:
             u_id = int(liker)
@@ -250,15 +250,15 @@ def like():
             'SELECT p.id, nickname, liker, like'
             ' FROM post p JOIN user u ON p.author_id = u.id'
             ' WHERE p.id = ?', (p_id, )).fetchone()
-        if str(u_id) not in post['liker'].split(','):
-            liker = post['liker'] + str(u_id) + ','
+        likers = post['liker'].split(',')
+        if str(u_id) not in likers:
+            likers.append(str(u_id))
             msg = '点赞成功'
         else:
             msg = '取消赞成功'
-            liker = post['liker'].split(',')[:-1]
-            liker.remove(str(u_id))
-            liker = ','.join(liker) + ','
-        like = len(liker.split(',')) - 1
+            likers.remove(str(u_id))
+        liker = ','.join(likers)
+        like = len(liker.split(','))
         db.execute('UPDATE post SET liker = ?, like = ?'
                    ' WHERE id = ?', (liker, like, p_id))
         db.commit()
