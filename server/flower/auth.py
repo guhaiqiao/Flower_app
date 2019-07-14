@@ -40,8 +40,7 @@ def register():
         error = '请输入密码'
     elif db.execute('SELECT id FROM user WHERE phone_number = ?',
                     (phone_number, )).fetchone() is not None:
-        error = '手机号 {} 已被注册'.format(
-            phone_number)
+        error = '手机号 {} 已被注册'.format(phone_number)
 
     if error is None:
         db.execute(
@@ -49,16 +48,13 @@ def register():
             ' level, EXPoint, friend, personal_description, sex, age, region)'
             'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             (request.remote_addr, phone_number,
-             generate_password_hash(password), 'None',
-             USER_IMAGE + 'default.jpg', 1, 0, '', '这个人很懒，什么也没有留下', '未知', '0',
-             '未知'))
+             generate_password_hash(password), 'None', USER_IMAGE +
+             'default.jpg', 1, 0, '', '这个人很懒，什么也没有留下', '未知', '0', '未知'))
         db.commit()
         msg = '注册成功'
 
-    return jsonify({
-        'msg': msg,
-        'error': error
-    })
+        return jsonify({'msg': msg})
+    return jsonify({'msg': msg, 'error': error})
 
 
 @bp.route('/login', methods=['POST'])
@@ -80,8 +76,7 @@ def login():
     if error is None:
         msg = '登陆成功.'
         if user['ip'] != '':
-            msg += '用户在另一ip已登录 {}'.format(
-                user['ip'])
+            msg += '用户在另一ip已登录 {}'.format(user['ip'])
         db.execute('UPDATE user SET ip = ?'
                    ' WHERE id = ?', (request.remote_addr, user['id']))
         db.commit()
@@ -220,7 +215,7 @@ def query_user():
     error = None
     if user is None:
         error = '请先登录'
-    elif type not in ['nickname', 'phone_number']:
+    elif type not in ['nickname', 'phone_number', 'id']:
         error = '查询方式错误'
     elif not User_index or User_index == 'None':
         error = '请输入用户'
@@ -315,4 +310,5 @@ def logout():
         db.execute('UPDATE user SET ip = ? WHERE id = ?', ('', id))
         db.commit()
         msg = '下线成功'
+        return jsonify({'msg': msg})
     return jsonify({'msg': msg, 'error': error})
