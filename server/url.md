@@ -1,6 +1,6 @@
 # Flower_app URL
 
-**/index**
+## **/index**
 
  首页
 
@@ -12,7 +12,7 @@
 
  返回参数（失败）：None
 
-**/index**
+## **/index**
 
  首页筛选
 
@@ -24,7 +24,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/register**
+## **/auth/register**
 
  注册
 
@@ -34,7 +34,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/login**
+## **/auth/login**
 
  登陆
 
@@ -44,7 +44,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/personal_info**
+## **/auth/personal_info**
 
  修改个人信息
 
@@ -54,7 +54,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/password_update**
+## **/auth/password_update**
 
  修改密码
 
@@ -64,7 +64,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/query**
+## **/auth/query**
 
  查询某一用户
 
@@ -76,7 +76,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/friend**
+## **/auth/friend**
 
  添加/删除好友
 
@@ -88,7 +88,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/logout**
+## **/auth/logout**
 
  登出
 
@@ -98,7 +98,7 @@
 
  返回参数（失败）：msg, error
 
-**/auth/check_status**
+## **/auth/check_status**
 
  检查登录状态
 
@@ -108,7 +108,7 @@
 
  返回参数（失败）：None
 
-**/blog/get_all**
+## **/blog/get_all**
 
  获取所有blog
 
@@ -123,7 +123,7 @@
 
  返回参数（失败）：None
 
-**/blog/get_one**
+## **/blog/get_one**
 
  获取某一blog
 
@@ -137,7 +137,7 @@
     image，image_size为列表
  返回参数（失败）：msg, error
 
-**/blog/create**
+## **/blog/create**
 
  发表blog
 
@@ -149,7 +149,7 @@
 
  返回参数（失败）：msg, error
 
-**/blog/like**
+## **/blog/like**
 
  点赞某一blog
 
@@ -159,7 +159,7 @@
 
  返回参数（失败）：msg, error
 
-**/blog/comment**
+## **/blog/comment**
 
  评论某一blog
 
@@ -169,7 +169,7 @@
 
  返回参数（失败）：msg, error
 
-**/blog/image**
+## **/blog/image**
 
  查看大图
 
@@ -179,7 +179,7 @@
 
  返回参数（失败）：msg, error
 
-**/flower/query**
+## **/flower/query**
 
  查询某种花
 
@@ -189,7 +189,7 @@
 
  返回参数（失败）：msg, error
 
-**/flower/auto_match**
+## **/flower/auto_match**
 
  自动搭配
 
