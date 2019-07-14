@@ -73,7 +73,7 @@ def get_all():
                         imageToStr(get_outfile(os.getcwd() + img)))
                 else:
                     blog['image'].append(imageToStr(os.getcwd() + img))
-        blog['image'] = ','.join(blog['image'])
+        # blog['image'] = ','.join(blog['image'])
 
         likers = post['liker'].split(',')[:-1]
         blog['likers'] = []
@@ -136,7 +136,7 @@ def get_one():
                                                             img)))
             else:
                 blog['image'].append(imageToStr(os.getcwd() + img))
-        blog['image'] = ','.join(blog['image'])
+        # blog['image'] = ','.join(blog['image'])
 
         likers = post['liker'].split(',')[:-1]
         blog['likers'] = []
