@@ -221,27 +221,29 @@ def query_user():
         error = '请输入用户'
     if error is None:
         db = get_db()
-        User = db.execute('SELECT * FROM user WHERE ' + type + ' = ?',
-                          (User_index, )).fetchone()
-        if User is None:
+        Users = db.execute('SELECT * FROM user WHERE ' + type + ' = ?',
+                           (User_index, )).fetchall()
+        if Users is None:
             error = '用户不存在'
 
     if error is None:
         msg = '查询成功'
-        head = imageToStr(os.getcwd() + User['head'])
-        return jsonify({
-            'msg': msg,
-            'phone_number': User['phone_number'],
-            'nickname': User['nickname'],
-            'level': User['level'],
-            'EXPoint': User['EXPoint'],
-            'personal_description': User['personal_description'],
-            'sex': User['sex'],
-            'age': User['age'],
-            'region': User['region'],
-            'head': head
-        })
-
+        users = []
+        for User in Users:
+            head = imageToStr(os.getcwd() + User['head'])
+            users.append({
+                'msg': msg,
+                'phone_number': User['phone_number'],
+                'nickname': User['nickname'],
+                'level': User['level'],
+                'EXPoint': User['EXPoint'],
+                'personal_description': User['personal_description'],
+                'sex': User['sex'],
+                'age': User['age'],
+                'region': User['region'],
+                'head': head
+            })
+        return jsonify({'users': users, 'msg': msg})
     return jsonify({'msg': msg, 'error': error})
 
 
