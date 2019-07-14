@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-
+import base64
 from flask import Blueprint, jsonify, request, make_response
 
 from flower.auth import check_status
@@ -57,7 +57,7 @@ def get_all():
         blog = {}
         infos = [
             'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
-            'liker', 'comment'
+            'comment'
         ]
         for info in infos:
             blog[info] = post[info]
@@ -74,13 +74,27 @@ def get_all():
                 else:
                     blog['image'].append(imageToStr(os.getcwd() + img))
         blog['image'] = ','.join(blog['image'])
+
+        likers = post['liker'].split(',')[:-1]
+        blog['likers'] = []
+        for liker in likers:
+            u_id = int(liker)
+            nickname = db.execute('SELECT * FROM user WHERE id = ?',
+                                  (u_id, )).fetchone()['nickname']
+            blog['likers'].append({'id': u_id, 'nickname': nickname})
+
         comments = blog['comment'].split('||')[:-1]
         blog['comment'] = []
         for comment in comments:
-            comment = comment.split('|')
+            comment = comment.split(',')
+            u_id = int(comment[0])
             nickname = db.execute('SELECT * FROM user WHERE id = ?',
-                                  (int(comment[0]), )).fetchone()['nickname']
-            blog['comment'].append([nickname, comment[1]])
+                                  (u_id, )).fetchone()['nickname']
+            blog['comment'].append({
+                'id': u_id,
+                'nickname': nickname,
+                'comment': base64.b64decode(comment[1])
+            })
         blogs.append(blog)
     return jsonify(blogs=blogs, msg=msg)
 
@@ -108,10 +122,11 @@ def get_one():
         blog = {}
         infos = [
             'id', 'title', 'body', 'created', 'author_id', 'nickname', 'like',
-            'liker', 'comment'
+            'comment'
         ]
         for info in infos:
             blog[info] = post[info]
+
         blog['image'] = []
         blog['image_size'] = post['image_size']
         img_compressed = post['image_compressed'].split(',')
@@ -122,13 +137,27 @@ def get_one():
             else:
                 blog['image'].append(imageToStr(os.getcwd() + img))
         blog['image'] = ','.join(blog['image'])
-        comments = blog['comment'].split('||')[:-1]
+
+        likers = post['liker'].split(',')[:-1]
+        blog['likers'] = []
+        for liker in likers:
+            u_id = int(liker)
+            nickname = db.execute('SELECT * FROM user WHERE id = ?',
+                                  (u_id, )).fetchone()['nickname']
+            blog['likers'].append({'id': u_id, 'nickname': nickname})
+
+        comments = post['comment'].split('.')[:-1]
         blog['comment'] = []
         for comment in comments:
-            comment = comment.split('|')
+            comment = comment.split(',')
+            u_id = int(comment[0])
             nickname = db.execute('SELECT * FROM user WHERE id = ?',
-                                  (int(comment[0]), )).fetchone()['nickname']
-            blog['comment'].append([nickname, comment[1]])
+                                  (u_id, )).fetchone()['nickname']
+            blog['comment'].append({
+                'id': u_id,
+                'nickname': nickname,
+                'comment': base64.b64decode(comment[1])
+            })
         return jsonify(blog=blog, msg=msg)
     return jsonify(error=error, msg=msg)
 
@@ -174,7 +203,7 @@ def create():
             (title, body, id, 0, '', ','.join(image), ','.join(image_size),
              ','.join(img_compress), ''))
         db.commit()
-        return jsonify(msg=msg, error=error)
+        return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
 
@@ -195,7 +224,8 @@ def comment():
             'SELECT p.id, title, body, nickname, created, liker, like, comment'
             ' FROM post p JOIN user u ON p.author_id = u.id'
             ' WHERE p.id = ?', (p_id, )).fetchone()
-        comment = post['comment'] + str(user['id']) + '|' + comment + '||'
+        comment = post['comment'] + str(
+            user['id']) + ',' + base64.b64encode(comment) + '.'
         db = get_db()
         db.execute('UPDATE post SET comment = ?'
                    ' WHERE id = ?', (comment, p_id))
@@ -232,6 +262,7 @@ def like():
         db.execute('UPDATE post SET liker = ?, like = ?'
                    ' WHERE id = ?', (liker, like, p_id))
         db.commit()
+        print(msg)
         return jsonify(msg=msg)
     return jsonify(msg=msg, error=error)
 
